@@ -1,6 +1,6 @@
-# Ask Chef - Frontend
+# Ask Chef - Backend
 
-<img src="./src/img/ask-chef-logo.png" alt="drawing" width="300"/>
+<img src="./img/ask-chef-logo.png" alt="drawing" width="300"/>
 
 ### Site deployed on Netlify [here]( https://ask-chef.netlify.app)
 **Author**: Alexander Beers
