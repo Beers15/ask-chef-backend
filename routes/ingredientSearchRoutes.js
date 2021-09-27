@@ -109,10 +109,10 @@ const updateRecipe = async (req, res) => {
   }
 };
 
-router.get('/recipes', getRecipes);
-router.get('/recipes/db', getDataBaseRecipes);
-router.post('/recipes', addRecipe);
-router.delete('/recipes/:id', deleteRecipe);
-router.put('/recipes/:id', updateRecipe);
+router.get('/', getRecipes);
+router.get('/db', getDataBaseRecipes);
+router.post('/', addRecipe);
+router.delete('/:id', deleteRecipe);
+router.put('/:id', updateRecipe);
 
 module.exports = router;

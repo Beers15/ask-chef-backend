@@ -1,7 +1,8 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const recipeRoutes = require('./routes/recipes');
+const ingredientSearchRoutes = require('./routes/ingredientSearchRoutes');
+const complexSearchRoutes = require('./routes/complexSearchRoutes');
 const ExpressError = require('./helpers/ExpressError');
 const mongoose = require('mongoose');
 require('dotenv').config();
@@ -13,7 +14,8 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error: '));
 db.once('open', () => console.log('Successfully connected to Mognodb'));
 
-app.use('/', recipeRoutes);
+app.use('/recipes', ingredientSearchRoutes);
+app.use('/recipes/complex-search', complexSearchRoutes);
 //if non-defined route is hit, returns error
 app.all('*', (req, res, next) => {
   console.log(req.url + ' route not found.');
