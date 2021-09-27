@@ -1,6 +1,7 @@
+const express = require('express');
+const router = express.Router();
 const axios = require('axios');
 const Recipe = require('../models/Recipe');
-
 const jwt = require('jsonwebtoken');
 const jwksClient = require('jwks-rsa');
 
@@ -14,6 +15,7 @@ function getKey(header, callback) {
     callback(null, signingKey);
   });
 }
+
 const getRecipes = async (req, res) => {
   try {
     const response = await axios.get(
@@ -107,12 +109,10 @@ const updateRecipe = async (req, res) => {
   }
 };
 
-const RecipeRoutes = {
-  list: getRecipes,
-  dbList: getDataBaseRecipes,
-  add: addRecipe,
-  delete: deleteRecipe,
-  update: updateRecipe,
-};
+router.get('/recipes', getRecipes);
+router.get('/recipes/db', getDataBaseRecipes);
+router.post('/recipes', addRecipe);
+router.delete('/recipes/:id', deleteRecipe);
+router.put('/recipes/:id', updateRecipe);
 
-module.exports = RecipeRoutes;
+module.exports = router;
