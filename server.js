@@ -1,7 +1,8 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const RecipeRoutes = require('./services/RecipeRoutes');
+const recipeRoutes = require('./routes/recipes');
+const ExpressError = require('./helpers/ExpressError');
 const mongoose = require('mongoose');
 require('dotenv').config();
 app.use(cors());
@@ -12,11 +13,21 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error: '));
 db.once('open', () => console.log('Successfully connected to Mognodb'));
 
-app.get('/recipes', RecipeRoutes.list);
-app.get('/recipes/db', RecipeRoutes.dbList);
-app.post('/recipes', RecipeRoutes.add);
-app.delete('/recipes/:id', RecipeRoutes.delete);
-app.put('/recipes/:id', RecipeRoutes.update);
+app.use('/', recipeRoutes);
+//if non-defined route is hit, returns error
+app.all('*', (req, res, next) => {
+  console.log(req.url + ' route not found.');
+  next(new ExpressError(404, 'Page Not Found'));
+});
+
+app.use((err, req, res, next) => {
+  //returns generic error if no specific error is found
+  const { status = 500 } = err;
+  if(!err.message) 
+    err.message = "Oh no, something went wrong.";
+
+  res.status(status).send(err);
+});
 
 const PORT = process.env.PORT || 3001;
 
