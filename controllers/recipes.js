@@ -113,7 +113,7 @@ module.exports.getRecipesByComplexSearch = async (req, res) => {
       `https://api.spoonacular.com/recipes/complexSearch?apiKey=${process.env.SPOONACULAR_KEY}&cuisine=${req.query.cuisine}&diet=${req.query.diet}&intolerences=${req.query.intolerances}&equipment=${req.query.equipment}&type=${req.query.type}&sort=meta-score&addRecipeInformation=true&number=6`
     );
     const results = response.data.results;
-
+    console.log(results);
     for(let result of results) {
       let resultSteps = [];
       let resultEquipment = [];
