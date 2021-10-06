@@ -16,9 +16,11 @@ Ask Chef is a website that help users come up with ideas for meal choices and re
 <!-- Provide a detailed description of the application design. What technologies (languages, libraries, etc) you're using, and any other relevant design information. -->
 
 ## Change Log
-<!-- Use this area to document the iterative changes made to your application as each feature is successfully implemented. Use time stamps. Here's an example:
 
-01-01-2001 4:59pm - Application now has a fully-functional express server, with a GET route for the location resource. -->
+10-05-2021 1:00pm - Create recipes controller. Refactor existing routes into an express router.
+
+9-27-2001 3:00pm - Add GET /recipes/complex-search route for retreving recipe resource data based on mutliple queries
+
 
 ## Credit and Collaborations
 Patrick Laurion, Antoine Charette, and Rachel Freeland were the other developers for the first version of this app. 

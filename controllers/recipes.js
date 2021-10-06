@@ -1,5 +1,3 @@
-const express = require('express');
-const router = express.Router();
 const axios = require('axios');
 const Recipe = require('../models/Recipe');
 const jwt = require('jsonwebtoken');
@@ -16,7 +14,7 @@ function getKey(header, callback) {
   });
 }
 
-const getRecipes = async (req, res) => {
+module.exports.getRecipes = async (req, res) => {
   try {
     const response = await axios.get(
       `https://api.spoonacular.com/recipes/findByIngredients?apiKey=${process.env.SPOONACULAR_KEY}&ingredients=${req.query.ingredients}&ranking=1&number=6`
@@ -44,7 +42,7 @@ const acquireSteps = async (recipe) => {
   }
 };
 
-const getDataBaseRecipes = async (req, res) => {
+module.exports.getDataBaseRecipes = async (req, res) => {
   const token = req.headers.authorization.split(' ')[1];
   jwt.verify(token, getKey, {}, function (err, user) {
     if (err) {
@@ -58,7 +56,7 @@ const getDataBaseRecipes = async (req, res) => {
   });
 };
 
-const addRecipe = async (req, res) => {
+module.exports.addRecipe = async (req, res) => {
   const token = req.headers.authorization.split(' ')[1];
   jwt.verify(token, getKey, {}, function (err, user) {
     if (err) {
@@ -83,7 +81,7 @@ const addRecipe = async (req, res) => {
   });
 };
 
-const deleteRecipe = async (req, res) => {
+module.exports.deleteRecipe = async (req, res) => {
   const recipeId = req.params.id;
   try {
     Recipe.deleteOne({ _id: recipeId }).then((deleteOneRecipe) => {
@@ -95,7 +93,7 @@ const deleteRecipe = async (req, res) => {
   }
 };
 
-const updateRecipe = async (req, res) => {
+module.exports.updateRecipe = async (req, res) => {
   console.log(req.body);
   const recipeId = req.params.id;
   try {
@@ -109,10 +107,29 @@ const updateRecipe = async (req, res) => {
   }
 };
 
-router.get('/recipes', getRecipes);
-router.get('/recipes/db', getDataBaseRecipes);
-router.post('/recipes', addRecipe);
-router.delete('/recipes/:id', deleteRecipe);
-router.put('/recipes/:id', updateRecipe);
-
-module.exports = router;
+module.exports.getRecipesByComplexSearch = async (req, res) => {
+  try {
+    const response = await axios.get(
+      `https://api.spoonacular.com/recipes/complexSearch?apiKey=${process.env.SPOONACULAR_KEY}&cuisine=${req.query.cuisine}&diet=${req.query.diet}&intolerences=${req.query.intolerances}&equipment=${req.query.equipment}&type=${req.query.type}&sort=meta-score&addRecipeInformation=true&number=6`
+    );
+    const results = response.data.results;
+    console.log(results);
+    for(let result of results) {
+      let resultSteps = [];
+      let resultEquipment = [];
+      for(let step of result.analyzedInstructions[0].steps) {
+        resultSteps.push(step.step);
+      }
+      for(let step of result.analyzedInstructions[0].steps) {
+        step.equipment[0] ? resultEquipment.push(step.equipment[0].name) : resultEquipment.push('none');
+      }
+      result.steps = resultSteps;
+      result.equipment = resultEquipment;
+      delete result.analyzedInstructions;
+    }
+    res.send(results);
+  } catch (err) {
+    console.log(err);
+    res.status(404).send(err);
+  }
+};
