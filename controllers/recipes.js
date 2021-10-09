@@ -63,17 +63,9 @@ module.exports.addRecipe = async (req, res) => {
     if (err) {
       res.status(500).send(err);
     } else {
-      const newRecipe = new Recipe({
-        recipe_id: req.body.recipe_id,
-        title: req.body.title,
-        image: req.body.image,
-        steps: req.body.steps,
-        missedIngredientCount: req.body.missedIngredientCount,
-        missedIngredients: req.body.missedIngredients,
-        usedIngredients: req.body.usedIngredients,
-        unusedIngredients: req.body.unusedIngredients,
-        email: user.email,
-      });
+      let recipe = req.body;
+      recipe.email = user.email;
+      const newRecipe = new Recipe(recipe);
 
       newRecipe.save((err, saveRecipeData) => {
         res.status(201).send(saveRecipeData);
@@ -109,30 +101,30 @@ module.exports.updateRecipe = async (req, res) => {
 };
 
 module.exports.getRecipesByComplexSearch = async (req, res) => {
-  const results = testdata;
-  // try {
-  //   const response = await axios.get(
-  //     `https://api.spoonacular.com/recipes/complexSearch?apiKey=${process.env.SPOONACULAR_KEY}&cuisine=${req.query.cuisine}&diet=${req.query.diet}&intolerences=${req.query.intolerances}&equipment=${req.query.equipment}&type=${req.query.type}&sort=meta-score&addRecipeInformation=true&number=6`
-  //   );
-  //   const results = response.data.results;
-  //   console.log(results);
-  //   for(let result of results) {
-  //     let resultSteps = [];
-  //     let resultEquipment = [];
-  //     for(let step of result.analyzedInstructions[0].steps) {
-  //       resultSteps.push(step.step);
-  //     }
-  //     for(let step of result.analyzedInstructions[0].steps) {
-  //       step.equipment[0] ? resultEquipment.push(step.equipment[0].name) : resultEquipment.push('none');
-  //     }
-  //     result.steps = resultSteps;
-  //     result.equipment = resultEquipment;
-  //     delete result.analyzedInstructions;
-  //   }
+  //const results = testdata;
+  try {
+    const response = await axios.get(
+      `https://api.spoonacular.com/recipes/complexSearch?apiKey=${process.env.SPOONACULAR_KEY}&cuisine=${req.query.cuisine}&diet=${req.query.diet}&intolerences=${req.query.intolerances}&equipment=${req.query.equipment}&type=${req.query.type}&sort=meta-score&addRecipeInformation=true&number=6`
+    );
+    const results = response.data.results;
+    console.log(results);
+    for(let result of results) {
+      let resultSteps = [];
+      let resultEquipment = [];
+      for(let step of result.analyzedInstructions[0].steps) {
+        resultSteps.push(step.step);
+      }
+      for(let step of result.analyzedInstructions[0].steps) {
+        step.equipment[0] ? resultEquipment.push(step.equipment[0].name) : resultEquipment.push('none');
+      }
+      result.steps = resultSteps;
+      result.equipment = resultEquipment;
+      delete result.analyzedInstructions;
+    }
 
-  res.send(results);
-  // } catch (err) {
-  //   console.log(err);
-  //   res.status(404).send(err);
-  // }
+    res.send(results);
+  } catch (err) {
+    console.log(err);
+    res.status(404).send(err);
+  }
 };

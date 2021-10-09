@@ -10,6 +10,17 @@ const recipeSchema = new mongoose.Schema({
   usedIngredients: Array,
   unusedIngredients: Array,
   email: String,
+  cheap: Boolean,
+  veryHealthy: Boolean,
+  veryPopular: Boolean,
+  healthScore: Number,
+  pricePerServing: Number,
+  summary: String,
+  cuisines: Array,
+  dishTypes: Array,
+  diets: Array,
+  sourceUrl: String,
+  creditsText: String,
 });
 
 const Recipe = mongoose.model('Recipe', recipeSchema);

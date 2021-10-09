@@ -26,7 +26,7 @@ app.use((err, req, res, next) => {
   //returns generic error if no specific error is found
   const { status = 500 } = err;
   if(!err.message) 
-    err.message = "Oh no, something went wrong.";
+    err.message = 'Oh no, something went wrong.';
 
   res.status(status).send(err);
 });
