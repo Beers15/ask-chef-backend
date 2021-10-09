@@ -2,7 +2,7 @@ const axios = require('axios');
 const Recipe = require('../models/Recipe');
 const jwt = require('jsonwebtoken');
 const jwksClient = require('jwks-rsa');
-const testdata = require('../testData');
+//const testdata = require('../testData');
 
 const client = jwksClient({
   jwksUri: 'https://dev-qttzuf0f.us.auth0.com/.well-known/jwks.json',
@@ -15,31 +15,24 @@ function getKey(header, callback) {
   });
 }
 
-module.exports.getRecipes = async (req, res) => {
+module.exports.getRecipesByIngredients = async (req, res) => {
   try {
     const response = await axios.get(
       `https://api.spoonacular.com/recipes/findByIngredients?apiKey=${process.env.SPOONACULAR_KEY}&ingredients=${req.query.ingredients}&ranking=1&number=6`
     );
-    const results = response.data;
 
-    for (let i = 0; i < 6; i++) {
-      let steps = await acquireSteps(response.data[i]);
-      results[i].steps = steps;
+    const results = [];
+
+    for(let i = 0; i < response.data.length; i++) {
+      const recipe = await axios.get(
+        `https://api.spoonacular.com/recipes/${response.data[i].id}/information?apiKey=${process.env.SPOONACULAR_KEY}`
+      );
+      results.push(await getRecipeDetails(recipe.data));
     }
-    res.send(results.slice());
-  } catch (err) {
-    res.status(404).send(err);
-  }
-};
-
-const acquireSteps = async (recipe) => {
-  try {
-    const stepResults = await axios.get(
-      `https://api.spoonacular.com/recipes/${recipe.id}/analyzedInstructions?apiKey=${process.env.SPOONACULAR_KEY}`
-    );
-    return stepResults.data[0].steps.map((step) => step.step);
+    res.send(results);
   } catch (err) {
     console.log(err);
+    res.status(404).send(err);
   }
 };
 
@@ -101,30 +94,33 @@ module.exports.updateRecipe = async (req, res) => {
 };
 
 module.exports.getRecipesByComplexSearch = async (req, res) => {
-  //const results = testdata;
   try {
     const response = await axios.get(
       `https://api.spoonacular.com/recipes/complexSearch?apiKey=${process.env.SPOONACULAR_KEY}&cuisine=${req.query.cuisine}&diet=${req.query.diet}&intolerences=${req.query.intolerances}&equipment=${req.query.equipment}&type=${req.query.type}&sort=meta-score&addRecipeInformation=true&number=6`
     );
     const results = response.data.results;
-    console.log(results);
     for(let result of results) {
-      let resultSteps = [];
-      let resultEquipment = [];
-      for(let step of result.analyzedInstructions[0].steps) {
-        resultSteps.push(step.step);
-      }
-      for(let step of result.analyzedInstructions[0].steps) {
-        step.equipment[0] ? resultEquipment.push(step.equipment[0].name) : resultEquipment.push('none');
-      }
-      result.steps = resultSteps;
-      result.equipment = resultEquipment;
-      delete result.analyzedInstructions;
+      getRecipeDetails(result);
     }
-
     res.send(results);
   } catch (err) {
     console.log(err);
     res.status(404).send(err);
   }
+};
+
+const getRecipeDetails = async (recipe) => {
+  let resultSteps = [];
+  let resultEquipment = [];
+  for(let step of recipe.analyzedInstructions[0].steps) {
+    resultSteps.push(step.step);
+  }
+  for(let step of recipe.analyzedInstructions[0].steps) {
+    step.equipment[0] ? resultEquipment.push(step.equipment[0].name) : resultEquipment.push('none');
+  }
+  recipe.steps = resultSteps;
+  recipe.summary = recipe.summary.replace(/<a href=.*">/, '');
+  recipe.equipment = resultEquipment;
+  delete recipe.analyzedInstructions;
+  return recipe;
 };
