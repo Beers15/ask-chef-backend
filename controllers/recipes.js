@@ -2,7 +2,6 @@ const axios = require('axios');
 const Recipe = require('../models/Recipe');
 const jwt = require('jsonwebtoken');
 const jwksClient = require('jwks-rsa');
-//const testdata = require('../testData');
 
 const client = jwksClient({
   jwksUri: 'https://dev-qttzuf0f.us.auth0.com/.well-known/jwks.json',
@@ -80,11 +79,9 @@ module.exports.deleteRecipe = async (req, res) => {
 };
 
 module.exports.updateRecipe = async (req, res) => {
-  console.log(req.body);
   const recipeId = req.params.id;
   try {
     const updateRecipe = await Recipe.findByIdAndUpdate(recipeId, req.body, { new: true });
-    console.log(req.body);
     updateRecipe.save((err, updatedRecipe) => {
       res.status(200).send(updatedRecipe);
     });

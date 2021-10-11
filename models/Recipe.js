@@ -21,6 +21,9 @@ const recipeSchema = new mongoose.Schema({
   diets: Array,
   sourceUrl: String,
   creditsText: String,
+  equipment: Array,
+  servings: Number,
+  readyInMinutes: Number
 });
 
 const Recipe = mongoose.model('Recipe', recipeSchema);
